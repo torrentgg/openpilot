@@ -77,9 +77,11 @@ class PathPlanner():
 
     self.alc_nudge_less = bool(int(kegman.conf['ALCnudgeLess']))
     self.alc_min_speed = float(kegman.conf['ALCminSpeed'])
+    self.alc_timer = float(kegman.conf['ALCtimer'])
 
     self.lane_change_state = LaneChangeState.off
     self.lane_change_timer = 0.0
+    self.pre_lane_change_timer = 0.0
     self.prev_one_blinker = False
 
 
@@ -155,24 +157,28 @@ class PathPlanner():
 
     if not active or self.lane_change_timer > 10.0:
       self.lane_change_state = LaneChangeState.off
+      self.pre_lane_change_timer = 0.0
     else:
       if sm['carState'].leftBlinker:
         lane_change_direction = LaneChangeDirection.left
+        self.pre_lane_change_timer += DT_MDL
       elif sm['carState'].rightBlinker:
         lane_change_direction = LaneChangeDirection.right
+        self.pre_lane_change_timer += DT_MDL
+      else:
+        self.pre_lane_change_timer = 0.0
 
-      if self.alc_nudge_less:
+      if self.alc_nudge_less and self.pre_lane_change_timer > self.alc_timer:
         torque_applied = True
       else:
         if lane_change_direction == LaneChangeDirection.left:
           torque_applied = sm['carState'].steeringTorque > 0 and sm['carState'].steeringPressed
         else:
           torque_applied = sm['carState'].steeringTorque < 0 and sm['carState'].steeringPressed
+        
 
       lane_change_prob = self.LP.l_lane_change_prob + self.LP.r_lane_change_prob
 
-      # State transitions
-      # off
       if self.lane_change_state == LaneChangeState.off and one_blinker and not self.prev_one_blinker:
         self.lane_change_state = LaneChangeState.preLaneChange
 
