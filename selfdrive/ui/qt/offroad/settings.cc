@@ -85,6 +85,12 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                 "This change behaves more like stock openpilot where you can use one button to enable everything. Note that once LKAS is on, it will remain on standby until manually disabled or the vehicle is shut off.",
                                 "../assets/offroad/icon_openpilot.png",
                                 this));
+
+  toggles.append(new ParamControl("LKASdisableOnBrake",
+                                "Honda: Disable LKAS on brake",
+                                "LKAS will be disabled when brake is pressed. Only work for honda.",
+                                "../assets/offroad/icon_openpilot.png",
+                                this));
                       
   toggles.append(new ParamControl("CommaPedalEnhancements",
                                 "Comma Pedal: Tuning Adjustments",
