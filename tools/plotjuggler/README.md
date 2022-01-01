@@ -20,12 +20,14 @@ A helper to run PlotJuggler on openpilot routes
 
 positional arguments:
   route_name         The route name to plot (cabana share URL accepted) (default: None)
+  data_dir           The folder that contain logs from your comma device
   segment_number     The index of the segment to plot (default: None)
   segment_count      The number of segments to plot (default: 1)
 
 optional arguments:
   -h, --help         show this help message and exit
   --demo             Use the demo route instead of providing one (default: False)
+  --local            Find log locally
   --qlog             Use qlogs (default: False)
   --can              Parse CAN data (default: False)
   --stream           Start PlotJuggler in streaming mode (default: False)
@@ -35,6 +37,10 @@ optional arguments:
 Example:
 
 `./juggle.py "4cf7a6ad03080c90|2021-09-29--13-46-36"`
+
+Local Log Example:
+
+`./juggle.py --local "2021-09-29--13-46-36" "/your_log_folder/"`
 
 ## Streaming
 
