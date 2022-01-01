@@ -99,7 +99,7 @@ class Route:
       explorer_match = re.match(EXPLORER_FILE_RE, f)
       op_match = re.match(OP_SEGMENT_DIR_RE, f)
       local_match = re.match(LOCAL_SEGMENT_RE, f)
-      print(local_match)
+      print(local_match.group())
 
       if explorer_match:
         segment_name, fn = explorer_match.groups()
@@ -107,6 +107,11 @@ class Route:
           segment_files[segment_name].append((fullpath, fn))
       elif op_match and os.path.isdir(fullpath):
         segment_name, = op_match.groups()
+        if segment_name.startswith(self.route_name):
+          for seg_f in os.listdir(fullpath):
+            segment_files[segment_name].append((os.path.join(fullpath, seg_f), seg_f))
+      elif local_match and os.path.isdir(fullpath):
+        segment_name = local_match.group()
         if segment_name.startswith(self.route_name):
           for seg_f in os.listdir(fullpath):
             segment_files[segment_name].append((os.path.join(fullpath, seg_f), seg_f))
