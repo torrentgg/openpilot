@@ -47,13 +47,16 @@ def start_juggler(fn=None, dbc=None, layout=None):
   extra_args = " ".join(extra_args)
   subprocess.call(f'{pj} --plugin_folders {os.path.join(juggle_dir, "bin")} {extra_args}', shell=True, env=env, cwd=juggle_dir)
 
-def juggle_route(route_name, segment_number, segment_count, qlog, can, layout):
+def juggle_route(route_name, base_dir, segment_number, segment_count, qlog, can, layout):
   if 'cabana' in route_name:
     query = parse_qs(urlparse(route_name).query)
     api = CommaApi(get_token())
     logs = api.get(f'v1/route/{query["route"][0]}/log_urls?sig={query["sig"][0]}&exp={query["exp"][0]}')
   elif route_name.startswith("http://") or route_name.startswith("https://") or os.path.isfile(route_name):
     logs = [route_name]
+  elif base_dir:
+    r = Route(route_name, data_dir=base_dir)
+    logs = r.qlog_paths() if qlog else r.log_paths()
   else:
     r = Route(route_name)
     logs = r.qlog_paths() if qlog else r.log_paths()
@@ -100,14 +103,21 @@ def get_arg_parser():
                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
   parser.add_argument("--demo", action="store_true", help="Use the demo route instead of providing one")
+  parser.add_argument("--local", action="store_true", help="Find log locally")
   parser.add_argument("--qlog", action="store_true", help="Use qlogs")
   parser.add_argument("--can", action="store_true", help="Parse CAN data")
   parser.add_argument("--stream", action="store_true", help="Start PlotJuggler in streaming mode")
   parser.add_argument("--layout", nargs='?', help="Run PlotJuggler with a pre-defined layout")
   parser.add_argument("route_name", nargs='?', help="The route name to plot (cabana share URL accepted)")
+  parser.add_argument("log_base_dir", nargs='?', help="Local dir of log")
   parser.add_argument("segment_number", type=int, nargs='?', help="The index of the segment to plot")
   parser.add_argument("segment_count", type=int, nargs='?', help="The number of segments to plot", default=1)
   return parser
+
+  if args.install:
+    install()
+    sys.exit()
+
 
 if __name__ == "__main__":
   arg_parser = get_arg_parser()
@@ -120,4 +130,5 @@ if __name__ == "__main__":
     start_juggler(layout=args.layout)
   else:
     route = DEMO_ROUTE if args.demo else args.route_name.strip()
-    juggle_route(route, args.segment_number, args.segment_count, args.qlog, args.can, args.layout)
+    base_dir = args.log_base_dir.strip() if args.local else False
+    juggle_route(route, base_dir, args.segment_number, args.segment_count, args.qlog, args.can, args.layout)

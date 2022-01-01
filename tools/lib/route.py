@@ -10,6 +10,7 @@ from tools.lib.api import CommaApi
 SEGMENT_NAME_RE = r'[a-z0-9]{16}[|_][0-9]{4}-[0-9]{2}-[0-9]{2}--[0-9]{2}-[0-9]{2}-[0-9]{2}--[0-9]+'
 EXPLORER_FILE_RE = r'^({})--([a-z]+\.[a-z0-9]+)$'.format(SEGMENT_NAME_RE)
 OP_SEGMENT_DIR_RE = r'^({})$'.format(SEGMENT_NAME_RE)
+LOCAL_SEGMENT_RE = r'[0-9]{4}-[0-9]{2}-[0-9]{2}--[0-9]{2}-[0-9]{2}-[0-9]{2}--[0-9]+'
 
 QLOG_FILENAMES = ['qlog.bz2']
 QCAMERA_FILENAMES = ['qcamera.ts']
@@ -22,7 +23,7 @@ class Route:
   def __init__(self, route_name, data_dir=None):
     self.files = None
     self.route_name = route_name.replace('_', '|')
-    if data_dir is not None:
+    if data_dir:
       self._segments = self._get_segments_local(data_dir)
     else:
       self._segments = self._get_segments_remote()
@@ -97,6 +98,8 @@ class Route:
       fullpath = os.path.join(data_dir, f)
       explorer_match = re.match(EXPLORER_FILE_RE, f)
       op_match = re.match(OP_SEGMENT_DIR_RE, f)
+      local_match = re.match(LOCAL_SEGMENT_RE, f)
+      print(local_match)
 
       if explorer_match:
         segment_name, fn = explorer_match.groups()
