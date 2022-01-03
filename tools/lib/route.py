@@ -99,7 +99,6 @@ class Route:
       explorer_match = re.match(EXPLORER_FILE_RE, f)
       op_match = re.match(OP_SEGMENT_DIR_RE, f)
       local_match = re.match(LOCAL_SEGMENT_RE, f)
-      print(local_match.group())
 
       if explorer_match:
         segment_name, fn = explorer_match.groups()

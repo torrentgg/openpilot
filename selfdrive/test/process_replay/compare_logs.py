@@ -23,6 +23,7 @@ def save_log(dest, log_msgs, compress=True):
   if compress:
     dat = bz2.compress(dat)
 
+  print(dest)
   with open(dest, "wb") as f:
    f.write(dat)
 
