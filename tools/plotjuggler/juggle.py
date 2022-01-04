@@ -74,7 +74,7 @@ def start_juggler(fn=None, dbc=None, layout=None):
   subprocess.call(cmd, shell=True, env=env, cwd=juggle_dir)
 
 
-def juggle_route(route_or_segment_name, segment_count, qlog, can, layout):
+def juggle_route(route_or_segment_name, base_dir, segment_count, qlog, can, layout):
   segment_start = 0
   if 'cabana' in route_or_segment_name:
     query = parse_qs(urlparse(route_or_segment_name).query)
@@ -158,4 +158,4 @@ if __name__ == "__main__":
   else:
     route_or_segment_name = DEMO_ROUTE if args.demo else args.route_or_segment_name.strip()
     base_dir = args.log_base_dir.strip() if args.local else False
-    juggle_route(route_or_segment_name, args.segment_count, args.qlog, args.can, args.layout)
+    juggle_route(route_or_segment_name, base_dir, args.segment_count, args.qlog, args.can, args.layout)
