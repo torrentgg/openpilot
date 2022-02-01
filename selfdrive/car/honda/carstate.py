@@ -344,8 +344,8 @@ class CarState(CarStateBase):
     ret.cruiseState.available = bool(main_on)
 
     # Gets rid of Pedal Grinding noise when brake is pressed at slow speeds for some models
-    if self.CP.carFingerprint in (CAR.PILOT, CAR.PILOT_2019, CAR.RIDGELINE, CAR.CIVIC, CAR.PASSPORT):
-      if ret.brake > 0.1:
+    if self.CP.carFingerprint in (CAR.PILOT, CAR.PILOT_2019, CAR.RIDGELINE, CAR.CIVIC):
+      if ret.brake > 0.5:
         ret.brakePressed = True
 
     # When user presses distance button on steering wheel. Must be above LKAS button code, cannot be below!
@@ -363,7 +363,7 @@ class CarState(CarStateBase):
     if bool(main_on):
       if self.CP.enableGasInterceptor:
         if self.prev_cruise_buttons == 3: #set
-          if self.cruise_buttons != 3:            
+          if self.cruise_buttons != 3:
             self.accEnabled = True
         elif self.prev_cruise_buttons == 4 and self.resumeAvailable == True: #resume
           if self.cruise_buttons != 4:
@@ -379,7 +379,7 @@ class CarState(CarStateBase):
     if self.CP.enableGasInterceptor or (self.CP.pcmCruise and self.CP.minEnableSpeed > 0):
       if self.prev_cruise_buttons != 2: #cancel
         if self.cruise_buttons == 2:
-          self.accEnabled = False   
+          self.accEnabled = False
       if ret.brakePressed:
         self.accEnabled = False
 
