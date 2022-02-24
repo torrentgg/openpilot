@@ -251,9 +251,9 @@ class CarState(CarStateBase):
     # TODO: Replace tests by toyota so this can go away
     if self.CP.enableGasInterceptor:
       user_gas = (cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) / 2.
-      ret.gasPressed = user_gas > 1e-5  # this works because interceptor reads < 0 when pedal position is 0. Once calibrated, this will change
+      ret.gasPressed = user_gas > 20  # this works because interceptor reads < 0 when pedal position is 0. Once calibrated, this will change
     else:
-      ret.gasPressed = ret.gas > 1e-5
+      ret.gasPressed = ret.gas > 20
 
     ret.steeringTorque = cp.vl["STEER_STATUS"]["STEER_TORQUE_SENSOR"]
     ret.steeringTorqueEps = cp.vl["STEER_MOTOR_TORQUE"]["MOTOR_TORQUE"]
@@ -289,7 +289,7 @@ class CarState(CarStateBase):
 
     # Gets rid of Pedal Grinding noise when brake is pressed at slow speeds for some models
     if self.CP.carFingerprint in (CAR.PILOT, CAR.PILOT_2019, CAR.PASSPORT, CAR.RIDGELINE):
-      if ret.brake > 0.05:
+      if ret.brake > 0.1:
         ret.brakePressed = True
 
     # TODO: discover the CAN msg that has the imperial unit bit for all other cars
