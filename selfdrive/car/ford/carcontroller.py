@@ -42,27 +42,40 @@ class CarController():
       # cancel stock ACC
       can_sends.append(fordcan.spam_cancel_button(self.packer))
 
+    # convert actuators curvature to steer angle
+    new_steer = self.VM.get_steer_from_curvature(actuators.curvature, CS.out.vEgo, 0.0)
+
     # apply rate limits
-    new_steer = actuators.steeringAngleDeg
+    # NOTE: we aren't rate limiting any other signal
     apply_steer = apply_ford_steer_angle_limits(new_steer, self.apply_steer_last, CS.out.vEgo)
     self.steer_rate_limited = new_steer != apply_steer
+
+    # convert steer angle (rate limited) back to curvature
+    curvature = self.VM.calc_curvature(apply_steer, CS.out.vEgo, 0.0)
+
+    curvature_rate, path_angle, path_offset = actuators.curvatureRate, \
+                                              actuators.pathAngle, \
+                                              actuators.pathDeviation
 
     # send steering commands at 20Hz
     if (frame % CarControllerParams.LKAS_STEER_STEP) == 0:
       lca_rq = 1 if CC.latActive else 0
 
-      # use LatCtlPath_An_Actl to actuate steering for now until curvature control is implemented
-      path_angle = apply_steer
+      # ramp rate: 0=Slow, 1=Medium, 2=Fast, 3=Immediately
+      # faster ramp rate when predicted path deviation is high
+      # from observation of stock system this makes everything smoother
+      offset_magnitude = abs(path_offset)
+      if offset_magnitude < 0.15:
+        ramp_type = 0
+      elif offset_magnitude < 1.0:
+        ramp_type = 1
+      elif offset_magnitude < 2.0:
+        ramp_type = 2
+      else:
+        ramp_type = 3
 
-      # convert steer angle to curvature
-      curvature = self.VM.calc_curvature(apply_steer, CS.out.vEgo, 0.0)
-
-      # TODO: get other actuators
-      curvature_rate = 0
-      path_offset = 0
-
-      ramp_type = 3  # 0=Slow, 1=Medium, 2=Fast, 3=Immediately
-      precision = 0  # 0=Comfortable, 1=Precise
+      # precision: 0=Comfortable, 1=Precise
+      precision = 0
 
       self.apply_steer_last = apply_steer
       can_sends.append(fordcan.create_lkas_command(self.packer, apply_steer, curvature))
@@ -85,6 +98,9 @@ class CarController():
     self.steer_alert_last = steer_alert
 
     new_actuators = actuators.copy()
-    new_actuators.steeringAngleDeg = apply_steer
+    new_actuators.curvature = curvature
+    new_actuators.curvatureRate = curvature_rate
+    new_actuators.pathAngle = path_angle
+    new_actuators.pathDeviation = path_offset
 
     return new_actuators, can_sends
