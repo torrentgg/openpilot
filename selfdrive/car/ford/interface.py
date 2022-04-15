@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from cereal import car
 from common.conversions import Conversions as CV
-from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint
+from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint, get_safety_config
 from selfdrive.car.ford.values import TransmissionType, CAR
 from selfdrive.car.interfaces import CarInterfaceBase
 
@@ -15,8 +15,7 @@ class CarInterface(CarInterfaceBase):
     ret = CarInterfaceBase.get_std_params(candidate, fingerprint)
 
     ret.carName = "ford"
-    #ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.ford)]
-    ret.dashcamOnly = True
+    ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.ford)]
 
     # Angle-based steering
     # TODO: use curvature control when ready
