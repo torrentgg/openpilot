@@ -5,7 +5,7 @@ from opendbc.can.parser import CANParser
 from selfdrive.car.ford.values import CANBUS, DBC
 from selfdrive.car.interfaces import RadarInterfaceBase
 
-RADAR_MSGS = list(range(0x120, 0x15F))  # 64 points
+RADAR_MSGS = list(range(0x120, 0x15F + 1))  # 64 points
 LAST_MSG = max(RADAR_MSGS)
 NUM_MSGS = len(RADAR_MSGS)
 
