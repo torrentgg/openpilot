@@ -19,11 +19,11 @@ def _create_radar_can_parser(CP):
   for addr in RADAR_MSGS:
     msg = f"MRR_Detection_{addr:03d}"
     signals += [
-      (f"CAN_DET_VALID_LEVEL_{addr:03d}", msg),
-      (f"CAN_DET_RANGE_{addr:03d}", msg),
-      (f"CAN_DET_AZIMUTH_{addr:03d}", msg),
-      (f"CAN_DET_RANGE_RATE_{addr:03d}", msg),
-      (f"CAN_DET_AMPLITUDE_{addr:03d}", msg),
+      (f"CAN_DET_VALID_LEVEL_{addr:02d}", msg),
+      (f"CAN_DET_RANGE_{addr:02d}", msg),
+      (f"CAN_DET_AZIMUTH_{addr:02d}", msg),
+      (f"CAN_DET_RANGE_RATE_{addr:02d}", msg),
+      (f"CAN_DET_AMPLITUDE_{addr:02d}", msg),
     ]
     checks += [(msg, 20)]
 
@@ -73,17 +73,17 @@ class RadarInterface(RadarInterfaceBase):
         self.track_id += 1
 
       # radar point only valid if valid signal asserted
-      valid = msg[f"CAN_DET_VALID_LEVEL_{addr:03d}"] > 0
+      valid = msg[f"CAN_DET_VALID_LEVEL_{addr:02d}"] > 0
       if valid:
-        rel_distance = msg[f"CAN_DET_RANGE_{addr:03d}"]  # m
-        azimuth = msg[f"CAN_DET_AZIMUTH_{addr:03d}"]  # rad
+        rel_distance = msg[f"CAN_DET_RANGE_{addr:02d}"]  # m
+        azimuth = msg[f"CAN_DET_AZIMUTH_{addr:02d}"]  # rad
 
         self.pts[addr].dRel = rel_distance  # m from front of car
         self.pts[addr].yRel = sin(-azimuth) * rel_distance  # in car frame's y axis, left is positive
-        self.pts[addr].vRel = msg[f"CAN_DET_RANGE_RATE_{addr:03d}"]  # m/s relative velocity
+        self.pts[addr].vRel = msg[f"CAN_DET_RANGE_RATE_{addr:02d}"]  # m/s relative velocity
 
         # use aRel for debugging AMPLITUDE (reflection size)
-        self.pts[addr].aRel = msg[f"CAN_DET_AMPLITUDE_{addr:03d}"]  # dBsm
+        self.pts[addr].aRel = msg[f"CAN_DET_AMPLITUDE_{addr:02d}"]  # dBsm
 
         self.pts[addr].yvRel = float('nan')
         self.pts[addr].measured = True
