@@ -8,27 +8,33 @@ from selfdrive.car.interfaces import RadarInterfaceBase
 RADAR_MSGS = list(range(0x120, 0x12F))
 
 
-def _create_radar_can_parser(car_fingerprint):
-  if 'radar' not in DBC[car_fingerprint]:
+def _create_radar_can_parser(CP):
+  if DBC[CP.carFingerprint]['radar'] is None:
     return None
 
-  msg_n = len(RADAR_MSGS)
-  signals = list(zip(['CAN_DET_RANGE'] * msg_n + ['CAN_DET_AZIMUTH'] * msg_n + ['CAN_DET_RANGE_RATE'] * msg_n + ['CAN_DET_VALID_LEVEL'] * msg_n,
-                     RADAR_MSGS * 4,
-                     [0] * msg_n + [0] * msg_n + [0] * msg_n + [0] * msg_n))
-  checks = list(zip(RADAR_MSGS, [20]*msg_n))
+  signals = []
+  checks = []
 
-  return CANParser(DBC[car_fingerprint]['radar'], signals, checks, CANBUS.radar)
+  for addr in RADAR_MSGS:
+    msg = f"MRR_Detection_{addr:03d}"
+    signals += [
+      ("CAN_DET_RANGE", msg),
+      ("CAN_DET_AZIMUTH", msg),
+      ("CAN_DET_RANGE_RATE", msg),
+      ("CAN_DET_VALID_LEVEL", msg),
+    ]
+    checks += [(msg, 20)]
+
+  return CANParser(DBC[CP.carFingerprint]['radar'], signals, checks, CANBUS.radar)
 
 class RadarInterface(RadarInterfaceBase):
   def __init__(self, CP):
     super().__init__(CP)
-    self.validCnt = {key: 0 for key in RADAR_MSGS}
+    self.updated_messages = set()
+    self.trigger_msg = 0x12E
     self.track_id = 0
 
-    self.rcp = _create_radar_can_parser(CP.carFingerprint)
-    self.trigger_msg = 0x12E
-    self.updated_messages = set()
+    self.rcp = _create_radar_can_parser(CP)
 
   def update(self, can_strings):
     if self.rcp is None:
@@ -40,32 +46,50 @@ class RadarInterface(RadarInterfaceBase):
     if self.trigger_msg not in self.updated_messages:
       return None
 
+    rr = self._update(self.updated_messages)
+    self.updated_messages.clear()
+
+    return rr
+
+  def _update(self, updated_messages):
     ret = car.RadarData.new_message()
+    if self.rcp is None:
+      return ret
+
     errors = []
+
     if not self.rcp.can_valid:
       errors.append('canError')
     ret.errors = errors
 
-    for ii in sorted(self.updated_messages):
-      cpt = self.rcp.vl[ii]
+    for addr in RADAR_MSGS:
+      msg = self.rcp.vl["MRR_Detection_{addr:03d}"]
+
+      if addr not in self.pts:
+        self.pts[addr] = car.RadarData.RadarPoint.new_message()
+        self.pts[addr].trackId = self.track_id
+        self.track_id += 1
 
       # radar point only valid if valid signal asserted
-      if cpt['CAN_DET_VALID_LEVEL'] > 0:
-        if ii not in self.pts:
-          self.pts[ii] = car.RadarData.RadarPoint.new_message()
-          self.pts[ii].trackId = self.track_id
-          self.track_id += 1
-        self.pts[ii].dRel = cpt['CAN_DET_RANGE']  # from front of car
-        # self.pts[ii].yRel = cpt['CAN_DET_RANGE'] * -cpt['CAN_DET_AZIMUTH']   # in car frame's y axis, left is positive
-        self.pts[ii].yRel = sin(-cpt['CAN_DET_AZIMUTH']) * cpt['CAN_DET_RANGE']
-        self.pts[ii].vRel = cpt['CAN_DET_RANGE_RATE']
-        self.pts[ii].aRel = float('nan')
-        self.pts[ii].yvRel = float('nan')
-        self.pts[ii].measured = True
+      valid = msg[f"CAN_DET_VALID_LEVEL_{addr:03d}"] > 0
+      if valid:
+        rel_distance = msg[f"CAN_DET_RANGE_{addr:03d}"]  # m
+        rel_vel = msg[f"CAN_DET_RANGE_RATE_{addr:03d}"]  # m/s
+        azimuth = msg[f"CAN_DET_AZIMUTH_{addr:03d}"]  # rad
+        amplitude = msg[f"CAN_DET_AMPLITUDE_{addr:03d}"]  # dBsm
+
+        self.pts[addr].dRel = rel_distance  # m from front of car
+        self.pts[addr].yRel = sin(-azimuth) * rel_distance  # in car frame's y axis, left is positive
+        self.pts[addr].vRel = rel_vel  # m/s relative velocity
+
+        # use aRel for debugging AMPLITUDE (reflection size)
+        self.pts[addr].aRel = amplitude
+
+        self.pts[addr].yvRel = float('nan')
+        self.pts[addr].measured = True
+
       else:
-        if ii in self.pts:
-          del self.pts[ii]
+        del self.pts[addr]
 
     ret.points = list(self.pts.values())
-    self.updated_messages.clear()
     return ret
