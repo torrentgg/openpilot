@@ -66,7 +66,7 @@ class RadarInterface(RadarInterfaceBase):
     ret.errors = errors
 
     for ii in range(1, NUM_MSGS + 1):
-      msg = self.rcp.vl["MRR_Detection_{ii:03d}"]
+      msg = self.rcp.vl[f"MRR_Detection_{ii:03d}"]
 
       if ii not in self.pts:
         self.pts[ii] = car.RadarData.RadarPoint.new_message()
