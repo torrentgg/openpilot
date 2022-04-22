@@ -5,7 +5,8 @@ from opendbc.can.parser import CANParser
 from selfdrive.car.ford.values import CANBUS, DBC
 from selfdrive.car.interfaces import RadarInterfaceBase
 
-RADAR_MSGS = list(range(0x120, 0x12F))
+RADAR_MSGS = list(range(0x120, 0x15F))  # 64 points
+LAST_MSG = max(RADAR_MSGS)
 
 
 def _create_radar_can_parser(CP):
@@ -18,10 +19,11 @@ def _create_radar_can_parser(CP):
   for addr in RADAR_MSGS:
     msg = f"MRR_Detection_{addr:03d}"
     signals += [
-      ("CAN_DET_RANGE", msg),
-      ("CAN_DET_AZIMUTH", msg),
-      ("CAN_DET_RANGE_RATE", msg),
-      ("CAN_DET_VALID_LEVEL", msg),
+      (f"CAN_DET_VALID_LEVEL_{addr:03d}", msg),
+      (f"CAN_DET_RANGE_{addr:03d}", msg),
+      (f"CAN_DET_AZIMUTH_{addr:03d}", msg),
+      (f"CAN_DET_RANGE_RATE_{addr:03d}", msg),
+      (f"CAN_DET_AMPLITUDE_{addr:03d}", msg),
     ]
     checks += [(msg, 20)]
 
@@ -31,7 +33,7 @@ class RadarInterface(RadarInterfaceBase):
   def __init__(self, CP):
     super().__init__(CP)
     self.updated_messages = set()
-    self.trigger_msg = 0x12E
+    self.trigger_msg = LAST_MSG
     self.track_id = 0
 
     self.rcp = _create_radar_can_parser(CP)
