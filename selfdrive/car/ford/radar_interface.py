@@ -17,7 +17,7 @@ def _create_radar_can_parser(CP):
   signals = []
   checks = []
 
-  for ii in range(NUM_MSGS):
+  for ii in range(1, NUM_MSGS + 1):
     msg = f"MRR_Detection_{ii:03d}"
     signals += [
       (f"CAN_DET_VALID_LEVEL_{ii:02d}", msg),
@@ -65,7 +65,7 @@ class RadarInterface(RadarInterfaceBase):
       errors.append("canError")
     ret.errors = errors
 
-    for ii in range(NUM_MSGS):
+    for ii in range(1, NUM_MSGS + 1):
       msg = self.rcp.vl["MRR_Detection_{ii:03d}"]
 
       if ii not in self.pts:
