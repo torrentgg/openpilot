@@ -59,7 +59,7 @@ class RadarInterface(RadarInterfaceBase):
     errors = []
 
     if not self.rcp.can_valid:
-      errors.append('canError')
+      errors.append("canError")
     ret.errors = errors
 
     for addr in RADAR_MSGS:
@@ -74,16 +74,14 @@ class RadarInterface(RadarInterfaceBase):
       valid = msg[f"CAN_DET_VALID_LEVEL_{addr:03d}"] > 0
       if valid:
         rel_distance = msg[f"CAN_DET_RANGE_{addr:03d}"]  # m
-        rel_vel = msg[f"CAN_DET_RANGE_RATE_{addr:03d}"]  # m/s
         azimuth = msg[f"CAN_DET_AZIMUTH_{addr:03d}"]  # rad
-        amplitude = msg[f"CAN_DET_AMPLITUDE_{addr:03d}"]  # dBsm
 
         self.pts[addr].dRel = rel_distance  # m from front of car
         self.pts[addr].yRel = sin(-azimuth) * rel_distance  # in car frame's y axis, left is positive
-        self.pts[addr].vRel = rel_vel  # m/s relative velocity
+        self.pts[addr].vRel = msg[f"CAN_DET_RANGE_RATE_{addr:03d}"]  # m/s relative velocity
 
         # use aRel for debugging AMPLITUDE (reflection size)
-        self.pts[addr].aRel = amplitude
+        self.pts[addr].aRel = msg[f"CAN_DET_AMPLITUDE_{addr:03d}"]  # dBsm
 
         self.pts[addr].yvRel = float('nan')
         self.pts[addr].measured = True
