@@ -7,6 +7,7 @@ from selfdrive.car.interfaces import RadarInterfaceBase
 
 RADAR_MSGS = list(range(0x120, 0x15F))  # 64 points
 LAST_MSG = max(RADAR_MSGS)
+NUM_MSGS = len(RADAR_MSGS)
 
 
 def _create_radar_can_parser(CP):
@@ -16,14 +17,14 @@ def _create_radar_can_parser(CP):
   signals = []
   checks = []
 
-  for addr in RADAR_MSGS:
-    msg = f"MRR_Detection_{addr:03d}"
+  for ii in range(NUM_MSGS):
+    msg = f"MRR_Detection_{ii:03d}"
     signals += [
-      (f"CAN_DET_VALID_LEVEL_{addr:02d}", msg),
-      (f"CAN_DET_RANGE_{addr:02d}", msg),
-      (f"CAN_DET_AZIMUTH_{addr:02d}", msg),
-      (f"CAN_DET_RANGE_RATE_{addr:02d}", msg),
-      (f"CAN_DET_AMPLITUDE_{addr:02d}", msg),
+      (f"CAN_DET_VALID_LEVEL_{ii:02d}", msg),
+      (f"CAN_DET_RANGE_{ii:02d}", msg),
+      (f"CAN_DET_AZIMUTH_{ii:02d}", msg),
+      (f"CAN_DET_RANGE_RATE_{ii:02d}", msg),
+      (f"CAN_DET_AMPLITUDE_{ii:02d}", msg),
     ]
     checks += [(msg, 20)]
 
@@ -64,32 +65,32 @@ class RadarInterface(RadarInterfaceBase):
       errors.append("canError")
     ret.errors = errors
 
-    for addr in RADAR_MSGS:
-      msg = self.rcp.vl["MRR_Detection_{addr:03d}"]
+    for ii in range(NUM_MSGS):
+      msg = self.rcp.vl["MRR_Detection_{ii:03d}"]
 
-      if addr not in self.pts:
-        self.pts[addr] = car.RadarData.RadarPoint.new_message()
-        self.pts[addr].trackId = self.track_id
+      if ii not in self.pts:
+        self.pts[ii] = car.RadarData.RadarPoint.new_message()
+        self.pts[ii].trackId = self.track_id
         self.track_id += 1
 
       # radar point only valid if valid signal asserted
-      valid = msg[f"CAN_DET_VALID_LEVEL_{addr:02d}"] > 0
+      valid = msg[f"CAN_DET_VALID_LEVEL_{ii:02d}"] > 0
       if valid:
-        rel_distance = msg[f"CAN_DET_RANGE_{addr:02d}"]  # m
-        azimuth = msg[f"CAN_DET_AZIMUTH_{addr:02d}"]  # rad
+        rel_distance = msg[f"CAN_DET_RANGE_{ii:02d}"]  # m
+        azimuth = msg[f"CAN_DET_AZIMUTH_{ii:02d}"]  # rad
 
-        self.pts[addr].dRel = rel_distance  # m from front of car
-        self.pts[addr].yRel = sin(-azimuth) * rel_distance  # in car frame's y axis, left is positive
-        self.pts[addr].vRel = msg[f"CAN_DET_RANGE_RATE_{addr:02d}"]  # m/s relative velocity
+        self.pts[ii].dRel = rel_distance  # m from front of car
+        self.pts[ii].yRel = sin(-azimuth) * rel_distance  # in car frame's y axis, left is positive
+        self.pts[ii].vRel = msg[f"CAN_DET_RANGE_RATE_{ii:02d}"]  # m/s relative velocity
 
         # use aRel for debugging AMPLITUDE (reflection size)
-        self.pts[addr].aRel = msg[f"CAN_DET_AMPLITUDE_{addr:02d}"]  # dBsm
+        self.pts[ii].aRel = msg[f"CAN_DET_AMPLITUDE_{ii:02d}"]  # dBsm
 
-        self.pts[addr].yvRel = float('nan')
-        self.pts[addr].measured = True
+        self.pts[ii].yvRel = float('nan')
+        self.pts[ii].measured = True
 
       else:
-        del self.pts[addr]
+        del self.pts[ii]
 
     ret.points = list(self.pts.values())
     return ret
