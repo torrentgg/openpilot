@@ -17,14 +17,15 @@ def _create_radar_can_parser(CP):
   signals = []
   checks = []
 
-  for ii in range(1, NUM_MSGS + 1):
-    msg = f"MRR_Detection_{ii:03d}"
+  for i in range(1, NUM_MSGS + 1):
+    msg = f"MRR_Detection_{i:03d}"
     signals += [
-      (f"CAN_DET_VALID_LEVEL_{ii:02d}", msg),
-      (f"CAN_DET_RANGE_{ii:02d}", msg),
-      (f"CAN_DET_AZIMUTH_{ii:02d}", msg),
-      (f"CAN_DET_RANGE_RATE_{ii:02d}", msg),
-      (f"CAN_DET_AMPLITUDE_{ii:02d}", msg),
+      (f"CAN_DET_VALID_LEVEL_{i:02d}", msg),
+      (f"CAN_DET_RANGE_{i:02d}", msg),
+      (f"CAN_DET_AZIMUTH_{i:02d}", msg),
+      (f"CAN_DET_RANGE_RATE_{i:02d}", msg),
+      (f"CAN_DET_AMPLITUDE_{i:02d}", msg),
+      (f"CAN_SCAN_INDEX_2LSB_{i:02d}", msg),
     ]
     checks += [(msg, 20)]
 
@@ -65,8 +66,10 @@ class RadarInterface(RadarInterfaceBase):
       errors.append("canError")
     ret.errors = errors
 
-    for ii in range(1, NUM_MSGS + 1):
-      msg = self.rcp.vl[f"MRR_Detection_{ii:03d}"]
+    for i in range(1, NUM_MSGS + 1):
+      msg = self.rcp.vl[f"MRR_Detection_{i:03d}"]
+      index = msg[f"CAN_SCAN_INDEX_2LSB_{i:03d}"]
+      ii = (i - 1) * 4 + index
 
       if ii not in self.pts:
         self.pts[ii] = car.RadarData.RadarPoint.new_message()
@@ -74,17 +77,17 @@ class RadarInterface(RadarInterfaceBase):
         self.track_id += 1
 
       # radar point only valid if valid signal asserted
-      valid = msg[f"CAN_DET_VALID_LEVEL_{ii:02d}"] > 0
+      valid = msg[f"CAN_DET_VALID_LEVEL_{i:02d}"] > 0
       if valid:
-        rel_distance = msg[f"CAN_DET_RANGE_{ii:02d}"]  # m
-        azimuth = msg[f"CAN_DET_AZIMUTH_{ii:02d}"]  # rad
+        rel_distance = msg[f"CAN_DET_RANGE_{i:02d}"]  # m
+        azimuth = msg[f"CAN_DET_AZIMUTH_{i:02d}"]  # rad
 
         self.pts[ii].dRel = rel_distance  # m from front of car
         self.pts[ii].yRel = sin(-azimuth) * rel_distance  # in car frame's y axis, left is positive
-        self.pts[ii].vRel = msg[f"CAN_DET_RANGE_RATE_{ii:02d}"]  # m/s relative velocity
+        self.pts[ii].vRel = msg[f"CAN_DET_RANGE_RATE_{i:02d}"]  # m/s relative velocity
 
         # use aRel for debugging AMPLITUDE (reflection size)
-        self.pts[ii].aRel = msg[f"CAN_DET_AMPLITUDE_{ii:02d}"]  # dBsm
+        self.pts[ii].aRel = msg[f"CAN_DET_AMPLITUDE_{i:02d}"]  # dBsm
 
         self.pts[ii].yvRel = float('nan')
         self.pts[ii].measured = True
