@@ -66,7 +66,7 @@ class RadarInterface(RadarInterfaceBase):
       errors.append("canError")
     ret.errors = errors
 
-    for i in range(1, NUM_MSGS + 1):
+    for i in updated_messages:
       msg = self.rcp.vl[f"MRR_Detection_{i:03d}"]
       index = msg[f"CAN_SCAN_INDEX_2LSB_{i:03d}"]
       ii = (i - 1) * 4 + index
