@@ -6,6 +6,7 @@ from selfdrive.car.ford.values import CANBUS, DBC
 from selfdrive.car.interfaces import RadarInterfaceBase
 
 RADAR_MSGS = list(range(0x120, 0x15F + 1))  # 64 points
+FIRST_MSG = min(RADAR_MSGS)
 LAST_MSG = max(RADAR_MSGS)
 NUM_MSGS = len(RADAR_MSGS)
 
@@ -66,9 +67,14 @@ class RadarInterface(RadarInterfaceBase):
       errors.append("canError")
     ret.errors = errors
 
-    for i in updated_messages:
-      msg = self.rcp.vl[f"MRR_Detection_{i:03d}"]
-      index = msg[f"CAN_SCAN_INDEX_2LSB_{i:03d}"]
+    for msg_id in updated_messages:
+      msg = self.rcp.vl[msg_id]
+
+      # FIRST_MSG i=1
+      i = msg_id - FIRST_MSG + 1
+      index = msg[f"CAN_SCAN_INDEX_2LSB_{i:02d}"]
+
+      # four points for each message (SCAN_INDEX rotates through 0..3)
       ii = (i - 1) * 4 + index
 
       if ii not in self.pts:
