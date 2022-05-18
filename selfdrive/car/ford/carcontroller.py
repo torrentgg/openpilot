@@ -53,6 +53,17 @@ class CarController():
       # cancel stock ACC
       can_sends.append(fordcan.spam_cancel_button(self.packer))
 
+
+    ### longitudinal control ###
+
+    # send gas/brake commands at 50Hz
+    if (frame % CarControllerParams.ACC_STEP) == 0:
+      acc_vel = 20.0  # 20 kph constant
+      can_sends.append(fordcan.create_acc_command(self.packer, CC.longActive, 0.0, 0.0, False, acc_vel))
+
+
+    ### lateral control ###
+
     # apply rate limits
     new_actuators = self.apply_ford_actuator_limits(actuators, CS.out.vEgo)
 
@@ -90,6 +101,7 @@ class CarController():
                                                   path_offset, path_angle, curvature_rate, curvature))
 
 
+    ### ui ###
     send_ui = (self.main_on_last != main_on) or (self.lkas_enabled_last != CC.latActive) or (self.steer_alert_last != steer_alert)
 
     # send lkas ui command at 1Hz or if ui state changes
