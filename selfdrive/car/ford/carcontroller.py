@@ -1,20 +1,10 @@
 from cereal import car
-from common.numpy_fast import clip, interp
+from common.numpy_fast import clip
 from selfdrive.car.ford import fordcan
 from selfdrive.car.ford.values import CarControllerParams
 from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
-
-
-def apply_ford_steer_angle_limits(apply_steer, apply_steer_last, vEgo):
-  # rate limit
-  steer_up = apply_steer * apply_steer_last > 0. and abs(apply_steer) > abs(apply_steer_last)
-  rate_limit = CarControllerParams.STEER_RATE_LIMIT_UP if steer_up else CarControllerParams.STEER_RATE_LIMIT_DOWN
-  max_angle_diff = interp(vEgo, rate_limit.speed_points, rate_limit.max_angle_diff_points)
-  apply_steer = clip(apply_steer, (apply_steer_last - max_angle_diff), (apply_steer_last + max_angle_diff))
-
-  return apply_steer
 
 
 class CarController():
@@ -23,11 +13,32 @@ class CarController():
     self.VM = VM
     self.packer = CANPacker(dbc_name)
 
-    self.apply_steer_last = 0
+    self.actuators_last = None
     self.steer_rate_limited = False
     self.main_on_last = False
     self.lkas_enabled_last = False
     self.steer_alert_last = False
+
+  def apply_ford_actuator_limits(self, actuators, vEvo):  # pylint: disable=unused-argument
+    new_actuators = actuators.copy()
+    steer_rate_limited = False
+
+    curvature = clip(actuators.curvature, -0.02, 0.02094)                   # LatCtlCurv_No_Actl
+    steer_rate_limited |= curvature != actuators.curvature
+
+    curvature_rate = clip(actuators.curvatureRate, -0.001024, 0.00102375)   # LatCtlCurv_NoRate_Actl
+    steer_rate_limited |= curvature_rate != actuators.curvatureRate
+
+    path_angle = clip(actuators.pathAngle, -0.01, 0.01)                     # LatCtlPath_An_Actl
+    steer_rate_limited |= path_angle != actuators.pathAngle
+
+    path_offset = clip(actuators.pathDeviation, -5.12, 5.11)                # LatCtlPathOffst_L_Actl
+    steer_rate_limited |= path_offset != actuators.pathDeviation
+
+    self.actuators_last = new_actuators
+    self.steer_rate_limited = steer_rate_limited
+
+    return new_actuators
 
   def update(self, CC, CS, frame):
     can_sends = []
@@ -42,37 +53,34 @@ class CarController():
       # cancel stock ACC
       can_sends.append(fordcan.spam_cancel_button(self.packer))
 
-    # convert actuators curvature to steer angle
-    new_steer = self.VM.get_steer_from_curvature(actuators.curvature, CS.out.vEgo, 0.0)
-
     # apply rate limits
-    # NOTE: we aren't rate limiting any other signal
-    apply_steer = apply_ford_steer_angle_limits(new_steer, self.apply_steer_last, CS.out.vEgo)
-    self.steer_rate_limited = new_steer != apply_steer
-
-    # convert steer angle (rate limited) back to curvature
-    curvature = self.VM.calc_curvature(apply_steer, CS.out.vEgo, 0.0)
-
-    curvature_rate, path_angle, path_offset = actuators.curvatureRate, \
-                                              actuators.pathAngle, \
-                                              actuators.pathDeviation
+    new_actuators = self.apply_ford_actuator_limits(actuators, CS.out.vEgo)
 
     # send steering commands at 20Hz
     if (frame % CarControllerParams.LKAS_STEER_STEP) == 0:
       lca_rq = 1 if CC.latActive else 0
 
+      curvature, curvature_rate = new_actuators.curvature, new_actuators.curvatureRate
+      path_angle, path_offset = new_actuators.pathAngle, new_actuators.pathDeviation
+
+      # convert actuators curvature to steer angle
+      # this is only used for debugging and LKA
+      apply_steer = self.VM.get_steer_from_curvature(new_actuators.curvature, CS.out.vEgo, 0.0)
+
       # ramp rate: 0=Slow, 1=Medium, 2=Fast, 3=Immediately
-      # faster ramp rate when predicted path deviation is high
+      # slower ramp rate when predicted path deviation is low
       # from observation of stock system this makes everything smoother
       offset_magnitude = abs(path_offset)
       if offset_magnitude < 0.15:
         ramp_type = 0
       elif offset_magnitude < 1.0:
         ramp_type = 1
-      elif offset_magnitude < 2.0:
-        ramp_type = 2
       else:
-        ramp_type = 3
+        ramp_type = 2
+      # elif offset_magnitude < 2.0:
+      #   ramp_type = 2
+      # else:
+      #   ramp_type = 3
 
       # precision: 0=Comfortable, 1=Precise
       precision = 0
@@ -96,11 +104,5 @@ class CarController():
     self.main_on_last = main_on
     self.lkas_enabled_last = CC.latActive
     self.steer_alert_last = steer_alert
-
-    new_actuators = actuators.copy()
-    new_actuators.curvature = curvature
-    new_actuators.curvatureRate = curvature_rate
-    new_actuators.pathAngle = path_angle
-    new_actuators.pathDeviation = path_offset
 
     return new_actuators, can_sends
