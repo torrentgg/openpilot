@@ -70,17 +70,16 @@ class CarController():
       # ramp rate: 0=Slow, 1=Medium, 2=Fast, 3=Immediately
       # slower ramp rate when predicted path deviation is low
       # from observation of stock system this makes everything smoother
-      offset_magnitude = abs(path_offset)
-      if offset_magnitude < 0.15:
-        ramp_type = 0
-      elif offset_magnitude < 1.0:
-        ramp_type = 1
-      else:
-        ramp_type = 2
+      # offset_magnitude = abs(path_offset)
+      # if offset_magnitude < 0.15:
+      #   ramp_type = 0
+      # elif offset_magnitude < 1.0:
+      #   ramp_type = 1
       # elif offset_magnitude < 2.0:
       #   ramp_type = 2
       # else:
       #   ramp_type = 3
+      ramp_type = 2
 
       # precision: 0=Comfortable, 1=Precise
       precision = 0
