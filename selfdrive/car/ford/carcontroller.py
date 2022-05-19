@@ -58,8 +58,12 @@ class CarController():
 
     # send gas/brake commands at 50Hz
     if (frame % CarControllerParams.ACC_STEP) == 0:
+      acc_gas = actuators.gas * 2.5               # [-5|5.23] m/s^2
+      acc_brake = actuators.brake * -20.0         # [-20|11.9449] m/s^2
+      acc_decel = 1 if acc_brake <= -0.08 else 0  # bool
+
       acc_vel = 20.0  # 20 kph constant
-      can_sends.append(fordcan.create_acc_command(self.packer, CC.longActive, 0.0, 0.0, False, acc_vel))
+      can_sends.append(fordcan.create_acc_command(self.packer, CC.longActive, acc_gas, acc_brake, acc_decel, acc_vel))
 
 
     ### lateral control ###
