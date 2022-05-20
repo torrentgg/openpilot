@@ -15,11 +15,13 @@ class CarController():
 
     self.actuators_last = None
     self.steer_rate_limited = False
+    self.braking = False
+    self.brake_steady = 0.
     self.main_on_last = False
     self.lkas_enabled_last = False
     self.steer_alert_last = False
 
-  def apply_ford_actuator_limits(self, actuators, vEvo):  # pylint: disable=unused-argument
+  def apply_ford_actuator_limits(self, actuators, vEgo):  # pylint: disable=unused-argument
     new_actuators = actuators.copy()
     steer_rate_limited = False
 
@@ -39,6 +41,28 @@ class CarController():
     self.steer_rate_limited = steer_rate_limited
 
     return new_actuators
+
+  def actuator_hysteresis(self, brake, vEgo):  # pylint: disable=unused-argument
+    # hyst params
+    brake_hyst_on = 0.02    # to activate brakes exceed this value
+    brake_hyst_off = 0.005  # to deactivate brakes below this value
+    brake_hyst_gap = 0.01   # don't change brake command for small ocilalitons within this value
+
+    #*** histeresis logic to avoid brake blinking. go above 0.1 to trigger
+    if (brake < brake_hyst_on and not self.braking) or brake < brake_hyst_off:
+      brake = 0.
+    self.braking = brake > 0.
+
+    # for small brake oscillations within brake_hyst_gap, don't change the brake command
+    if brake == 0.:
+      self.brake_steady = 0.
+    elif brake > self.brake_steady + brake_hyst_gap:
+      self.brake_steady = brake - brake_hyst_gap
+    elif brake < self.brake_steady - brake_hyst_gap:
+      self.brake_steady = brake + brake_hyst_gap
+    brake = self.brake_steady
+
+    return brake
 
   def update(self, CC, CS, frame):
     can_sends = []
