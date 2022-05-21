@@ -98,11 +98,10 @@ class CarController():
     if (frame % CarControllerParams.ACC_STEP) == 0:
       acc_rq = 1 if CC.longActive else 0
 
-      gas, brake = self.compute_gas_brake(actuators.accel, CS.out.vEgo)
-      brake = self.brake_hysteresis(brake, CS.out.vEgo)
+      accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+      apply_gas, apply_brake = self.compute_gas_brake(accel, CS.out.vEgo)
+      apply_brake = self.brake_hysteresis(apply_brake, CS.out.vEgo)
 
-      apply_gas = gas * 2.5                         # [-5|5.23] m/s^2
-      apply_brake = brake * -20.0                   # [-20|11.9449] m/s^2
       decel_rq = 1 if apply_brake <= -0.08 else 0   # bool
 
       acc_vel = CS.out.cruiseState.speed * CV.MS_TO_KPH  # kph
@@ -117,7 +116,7 @@ class CarController():
     new_actuators = self.apply_ford_actuator_limits(actuators, CS.out.vEgo)
 
     # send steering commands at 20Hz
-    if (frame % CarControllerParams.LKAS_STEER_STEP) == 0:
+    if (frame % CarControllerParams.LKAS_STEP) == 0:
       lca_rq = 1 if CC.latActive else 0
 
       curvature, curvature_rate = new_actuators.curvature, new_actuators.curvatureRate
