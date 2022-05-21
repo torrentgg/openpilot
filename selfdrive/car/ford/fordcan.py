@@ -48,7 +48,7 @@ def create_tja_command(packer, lca_rq: int, ramp_type: int, precision: int, path
   return packer.make_can_msg("LateralMotionControl", 0, values)
 
 
-def create_acc_command(packer, enabled: bool, acc_gas: float, acc_brake: float, acc_decel: bool, acc_vel: float):
+def create_acc_command(packer, enabled: bool, apply_gas: float, apply_brake: float, decel_rq: bool, v_ego: float):
   """
   Creates a CAN message for the Ford ACC Command.
 
@@ -61,20 +61,20 @@ def create_acc_command(packer, enabled: bool, acc_gas: float, acc_brake: float, 
   values = {
     "AccBrkPulse_B_Rq": 0,
     "AccAutoResum_D_Rq": 0,
-    "AccBrkTot_A_Rq": acc_brake,      # [-20|11.9449] m/s^2
-    "AccPrpl_A_Pred": acc_gas,        # [-5|5.23] m/s^2
-    "AccVeh_V_Trg": acc_vel,          # kph
+    "AccBrkTot_A_Rq": apply_brake,    # [-20|11.9449] m/s^2
+    "AccPrpl_A_Pred": apply_gas,      # [-5|5.23] m/s^2
+    "AccVeh_V_Trg": v_ego,            # kph
     "AccBrkPrkEl_B_Rq": 0,
     "Cmbb_B_Enbl": enabled,           # bool
     "CmbbOvrrd_B_RqDrv": 0,
     "CmbbDeny_B_Actl": 0,
     "CmbbEngTqMn_B_Rq": 0,
-    "AccPrpl_A_Rq": acc_gas,          # [-5|5.23] m/s^2
+    "AccPrpl_A_Rq": apply_gas,        # [-5|5.23] m/s^2
     "AccDeny_B_Rq": 0,
     "AccResumEnbl_B_Rq": 0,
     "AccCancl_B_Rq": 0,
-    "AccBrkPrchg_B_Rq": acc_decel,    # bool
-    "AccBrkDecel_B_Rq": acc_decel,    # bool
+    "AccBrkPrchg_B_Rq": decel_rq,     # bool
+    "AccBrkDecel_B_Rq": decel_rq,     # bool
     "AccStopStat_B_Rq": 0,
   }
   return packer.make_can_msg("ACCDATA", 0, values)

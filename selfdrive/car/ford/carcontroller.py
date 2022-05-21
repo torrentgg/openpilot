@@ -1,4 +1,5 @@
 from cereal import car
+from common.conversions import Conversions as CV
 from common.numpy_fast import clip
 from selfdrive.car.ford import fordcan
 from selfdrive.car.ford.values import CarControllerParams
@@ -42,7 +43,20 @@ class CarController():
 
     return new_actuators
 
-  def actuator_hysteresis(self, brake, vEgo):  # pylint: disable=unused-argument
+  def compute_gas_brake(self, accel, speed):
+    creep_brake = 0.0
+
+    # TODO: no idea if these values are sane for ford
+    creep_speed = 2.3
+    creep_brake_value = 0.15
+
+    if speed < creep_speed:
+      creep_brake = (creep_speed - speed) / creep_speed * creep_brake_value
+
+    gb = float(accel) / 4.8 - creep_brake
+    return clip(gb, 0.0, 1.0), clip(-gb, 0.0, 1.0)
+
+  def brake_hysteresis(self, brake, vEgo):  # pylint: disable=unused-argument
     # hyst params
     brake_hyst_on = 0.02    # to activate brakes exceed this value
     brake_hyst_off = 0.005  # to deactivate brakes below this value
@@ -82,12 +96,19 @@ class CarController():
 
     # send gas/brake commands at 50Hz
     if (frame % CarControllerParams.ACC_STEP) == 0:
-      acc_gas = actuators.gas * 2.5               # [-5|5.23] m/s^2
-      acc_brake = actuators.brake * -20.0         # [-20|11.9449] m/s^2
-      acc_decel = 1 if acc_brake <= -0.08 else 0  # bool
+      acc_rq = 1 if CC.longActive else 0
 
-      acc_vel = 20.0  # 20 kph constant
-      can_sends.append(fordcan.create_acc_command(self.packer, CC.longActive, acc_gas, acc_brake, acc_decel, acc_vel))
+      gas, brake = self.compute_gas_brake(actuators.accel, CS.out.vEgo)
+      brake = self.brake_hysteresis(brake, CS.out.vEgo)
+
+      apply_gas = gas * 2.5                         # [-5|5.23] m/s^2
+      apply_brake = brake * -20.0                   # [-20|11.9449] m/s^2
+      decel_rq = 1 if apply_brake <= -0.08 else 0   # bool
+
+      acc_vel = CS.out.cruiseState.speed * CV.MS_TO_KPH  # kph
+
+      can_sends.append(fordcan.create_acc_command(self.packer, acc_rq, apply_gas, apply_brake,
+                                                  decel_rq, acc_vel))
 
 
     ### lateral control ###
