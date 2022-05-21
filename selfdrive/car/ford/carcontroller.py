@@ -94,20 +94,21 @@ class CarController():
 
     ### longitudinal control ###
 
-    # send gas/brake commands at 50Hz
-    if (frame % CarControllerParams.ACC_STEP) == 0:
-      acc_rq = 1 if CC.longActive else 0
+    if self.CP.openpilotLongitudinalControl:
+      # send gas/brake commands at 50Hz
+      if (frame % CarControllerParams.ACC_STEP) == 0:
+        acc_rq = 1 if CC.longActive else 0
 
-      accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
-      apply_gas, apply_brake = self.compute_gas_brake(accel, CS.out.vEgo)
-      apply_brake = self.brake_hysteresis(apply_brake, CS.out.vEgo)
+        accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+        apply_gas, apply_brake = self.compute_gas_brake(accel, CS.out.vEgo)
+        apply_brake = self.brake_hysteresis(apply_brake, CS.out.vEgo)
 
-      decel_rq = 1 if apply_brake <= -0.08 else 0   # bool
+        decel_rq = 1 if apply_brake <= -0.08 else 0   # bool
 
-      acc_vel = CS.out.cruiseState.speed * CV.MS_TO_KPH  # kph
+        acc_vel = CS.out.cruiseState.speed * CV.MS_TO_KPH  # kph
 
-      can_sends.append(fordcan.create_acc_command(self.packer, acc_rq, apply_gas, apply_brake,
-                                                  decel_rq, acc_vel))
+        can_sends.append(fordcan.create_acc_command(self.packer, acc_rq, apply_gas, apply_brake,
+                                                    decel_rq, acc_vel))
 
 
     ### lateral control ###
