@@ -124,7 +124,7 @@ class CarController():
 
       # convert actuators curvature to steer angle
       # this is only used for debugging and LKA
-      apply_steer = self.VM.get_steer_from_curvature(new_actuators.curvature, CS.out.vEgo, 0.0)
+      angle_deg = self.VM.get_steer_from_curvature(new_actuators.curvature, CS.out.vEgo, 0.0)
 
       # ramp rate: 0=Slow, 1=Medium, 2=Fast, 3=Immediately
       # slower ramp rate when predicted path deviation is low
@@ -143,8 +143,7 @@ class CarController():
       # precision: 0=Comfortable, 1=Precise
       precision = 0
 
-      self.apply_steer_last = apply_steer
-      can_sends.append(fordcan.create_lkas_command(self.packer, apply_steer, curvature))
+      can_sends.append(fordcan.create_lkas_command(self.packer, angle_deg, curvature))
       can_sends.append(fordcan.create_tja_command(self.packer, lca_rq, ramp_type, precision,
                                                   path_offset, path_angle, curvature_rate, curvature))
 
