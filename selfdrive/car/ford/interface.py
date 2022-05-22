@@ -35,6 +35,11 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 13.8  # learned
       ret.mass = 1350 + STD_CARGO_KG  # hatchback
 
+    elif candidate == CAR.MAVERICK_MK1:
+      ret.wheelbase = 3.076
+      ret.steerRatio = 14.3  # Copied from Focus
+      ret.mass = 1650 + STD_CARGO_KG
+
     else:
       raise ValueError(f"Unsupported car: ${candidate}")
 

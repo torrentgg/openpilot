@@ -30,6 +30,7 @@ class CANBUS:
 class CAR:
   ESCAPE_MK4 = "FORD ESCAPE 4TH GEN"
   FOCUS_MK4 = "FORD FOCUS 4TH GEN"
+  MAVERICK_MK1 = "FORD MAVERICK 1ST GEN"
 
 
 CAR_INFO: Dict[str, Union[CarInfo, List[CarInfo]]] = {
@@ -77,4 +78,5 @@ FW_VERSIONS = {
 DBC = {
   CAR.ESCAPE_MK4: dbc_dict('ford_lincoln_base_pt', None),
   CAR.FOCUS_MK4: dbc_dict('ford_lincoln_base_pt', None),
+  CAR.MAVERICK_MK1: dbc_dict('ford_lincoln_base_pt', None),
 }
