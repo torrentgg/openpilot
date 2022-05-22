@@ -26,17 +26,17 @@ class CarController():
     new_actuators = actuators.copy()
     steer_rate_limited = False
 
-    curvature = clip(actuators.curvature, -0.02, 0.02094)                   # LatCtlCurv_No_Actl
-    steer_rate_limited |= curvature != actuators.curvature
+    new_actuators.curvature = clip(actuators.curvature, -0.02, 0.02094)                   # LatCtlCurv_No_Actl
+    steer_rate_limited |= new_actuators.curvature != actuators.curvature
 
-    curvature_rate = clip(actuators.curvatureRate, -0.001024, 0.00102375)   # LatCtlCurv_NoRate_Actl
-    steer_rate_limited |= curvature_rate != actuators.curvatureRate
+    new_actuators.curvatureRate = clip(actuators.curvatureRate, -0.001024, 0.00102375)   # LatCtlCurv_NoRate_Actl
+    steer_rate_limited |= new_actuators.curvatureRate != actuators.curvatureRate
 
-    path_angle = clip(actuators.pathAngle, -0.01, 0.01)                     # LatCtlPath_An_Actl
-    steer_rate_limited |= path_angle != actuators.pathAngle
+    new_actuators.pathAngle = clip(actuators.pathAngle, -0.01, 0.01)                     # LatCtlPath_An_Actl
+    steer_rate_limited |= new_actuators.pathAngle != actuators.pathAngle
 
-    path_offset = clip(actuators.pathDeviation, -5.12, 5.11)                # LatCtlPathOffst_L_Actl
-    steer_rate_limited |= path_offset != actuators.pathDeviation
+    new_actuators.pathDeviation = clip(actuators.pathDeviation, -5.12, 5.11)                # LatCtlPathOffst_L_Actl
+    steer_rate_limited |= new_actuators.pathDeviation != actuators.pathDeviation
 
     self.actuators_last = new_actuators
     self.steer_rate_limited = steer_rate_limited
