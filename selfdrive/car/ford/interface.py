@@ -29,13 +29,13 @@ class CarInterface(CarInterfaceBase):
       ret.wheelbase = 2.71
       ret.steerRatio = 14.3  # Copied from Focus
       tire_stiffness_factor = 0.5328  # Copied from Focus
-      ret.mass = 1750 + STD_CARGO_KG
+      ret.mass = 1650 + STD_CARGO_KG  # mean between normal and PHEV
 
     elif candidate == CAR.FOCUS_MK4:
       ret.wheelbase = 2.7
       ret.steerRatio = 14.3
       tire_stiffness_factor = 0.5328
-      ret.mass = 1350 + STD_CARGO_KG
+      ret.mass = 1350 + STD_CARGO_KG  # hatchback
 
     else:
       raise ValueError(f"Unsupported car: ${candidate}")
