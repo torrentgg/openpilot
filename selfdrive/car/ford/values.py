@@ -73,7 +73,7 @@ FW_VERSIONS = {
       b'JX6A-14C204-BPL\x00\x00\x00\x00\x00\x00\x00\x00\x00',
     ],
   },
-  CAR.FOCUS_MK4: {
+  CAR.TRANSIT_MK4: {
     (Ecu.eps, 0x730, None): [
       b'KK21-14D003-AJ\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',
     ],
@@ -94,4 +94,5 @@ DBC = {
   CAR.ESCAPE_MK4: dbc_dict('ford_lincoln_base_pt', None),
   CAR.FOCUS_MK4: dbc_dict('ford_lincoln_base_pt', None),
   CAR.MAVERICK_MK1: dbc_dict('ford_lincoln_base_pt', None),
+  CAR.TRANSIT_MK4: dbc_dict('ford_lincoln_base_pt', None),
 }
