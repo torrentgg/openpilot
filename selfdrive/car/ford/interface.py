@@ -30,11 +30,6 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 14.3  # Copied from Focus
       ret.mass = 1650 + STD_CARGO_KG  # mean between normal and PHEV
 
-    elif candidate == CAR.ESCAPE_MK4:
-      ret.wheelbase = 2.71
-      ret.steerRatio = 14.3  # Copied from Focus
-      ret.mass = 1650 + STD_CARGO_KG  # mean between normal and PHEV
-
     elif candidate == CAR.FOCUS_MK4:
       ret.wheelbase = 2.7
       ret.steerRatio = 13.8  # learned
