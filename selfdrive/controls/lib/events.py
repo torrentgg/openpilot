@@ -247,7 +247,7 @@ def no_gps_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: bool, soft_
     "" if gps_integrated else "",
     AlertStatus.normal, AlertSize.mid,
     #Priority.LOWER, VisualAlert.none, AudibleAlert.none, .2, creation_delay=300.)
-    Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .0, creation_delay=300.)
+    Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .0, creation_delay=3000000000000000000000.)
 
 
 def wrong_car_mode_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
