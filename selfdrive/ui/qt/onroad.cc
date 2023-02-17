@@ -333,13 +333,13 @@ void OnroadHud::paintEvent(QPaintEvent *event) {
   // display text info
   std::string info = "";
   std::string info1 = "LongCrtlActive: ";
-  std::string info2 = sm["carParams"].getCarParams().getOpenpilotLongitudinalControl() ? "true" : "false";
+  std::string info2 = longControlEnable ? "true" : "false";
   info.append(info1);
   info.append(info2);
   QString infoText = QString::fromStdString(info);
   setProperty("finalInfoText", infoText);
   configFont(p, "Open Sans", 20, "Regular");
-  drawText(p, rect().left().x(), rect().center().y(), finalInfoText);
+  drawText(p, rect().left().x(), rect().center().y(), finalInfoText, 200);
 
   // current speed
   configFont(p, "Open Sans", 176, "Bold");
