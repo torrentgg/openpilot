@@ -40,10 +40,12 @@ class OnroadHud : public QWidget {
   Q_PROPERTY(QString speed MEMBER speed NOTIFY valueChanged);
   Q_PROPERTY(QString speedUnit MEMBER speedUnit NOTIFY valueChanged);
   Q_PROPERTY(QString maxSpeed MEMBER maxSpeed NOTIFY valueChanged);
+  Q_PROPERTY(QString finalInfoText MEMBER finalInfoText NOTIFY valueChanged);
   Q_PROPERTY(bool is_cruise_set MEMBER is_cruise_set NOTIFY valueChanged);
   Q_PROPERTY(bool engageable MEMBER engageable NOTIFY valueChanged);
   Q_PROPERTY(bool dmActive MEMBER dmActive NOTIFY valueChanged);
   Q_PROPERTY(bool hideDM MEMBER hideDM NOTIFY valueChanged);
+  Q_PROPERTY(bool longControlActive MEMBER longControlActive NOTIFY valueChanged);
   Q_PROPERTY(int status MEMBER status NOTIFY valueChanged);
 
 public:
@@ -62,10 +64,12 @@ private:
   QString speed;
   QString speedUnit;
   QString maxSpeed;
+  QString finalInfoText;
   bool is_cruise_set = false;
   bool engageable = false;
   bool dmActive = false;
   bool hideDM = false;
+  bool longControlActive = false; //display line
   int status = STATUS_DISENGAGED;
 
 signals:
