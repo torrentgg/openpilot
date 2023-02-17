@@ -340,6 +340,8 @@ void OnroadHud::paintEvent(QPaintEvent *event) {
   std::string info = "";
   std::string info1 = "LongCrtlActive: ";
   std::string info2 = longControlActive ? "true" : "false";
+  std::string info1 = "SDSU_Found: ";
+  std::string info2 = SDSU_Found ? "true" : "false";
   info.append(info1);
   info.append(info2);
   QString infoText = QString::fromStdString(info);
