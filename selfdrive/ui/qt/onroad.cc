@@ -333,8 +333,8 @@ void OnroadHud::paintEvent(QPaintEvent *event) {
 
   // display text info
   QRect ra(0, height() - 60, width(), 60);
-  p.setPen(QPen(QColor(0xff, 0xff, 0xff, 100), 10));
-  p.setBrush(QColor(0xff, 0xff, 0xff, 100));
+  p.setPen(QPen(QColor(0, 0, 0, 100), 100));
+  p.setBrush(QColor(0, 0, 0, 100));
   p.drawRect(ra);
   p.setPen(Qt::NoPen);
 
@@ -350,7 +350,7 @@ void OnroadHud::paintEvent(QPaintEvent *event) {
   QString infoText = QString::fromStdString(info);
   setProperty("finalInfoText", infoText);
   configFont(p, "Open Sans", 55, "Regular");
-  drawText(p, rect().left() + 10, rect().bottom() - 60, finalInfoText);
+  drawText(p, rect().center().x(), rect().bottom()-5, finalInfoText);
 
   // current speed
   configFont(p, "Open Sans", 176, "Bold");
