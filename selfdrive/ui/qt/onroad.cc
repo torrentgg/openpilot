@@ -293,7 +293,7 @@ void OnroadHud::updateState(const UIState &s) {
   setProperty("maxSpeed", maxspeed_str);
   setProperty("speedUnit", s.scene.is_metric ? "km/h" : "mph");
   setProperty("hideDM", cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE);
-  setProperty("longControlEnable", sm["carParams"].getCarParams().getOpenpilotLongitudinalControl(););
+  setProperty("longControlEnable", sm["carParams"].getCarParams().getOpenpilotLongitudinalControl());
   setProperty("status", s.status);
 
   // update engageability and DM icons at 2Hz
