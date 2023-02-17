@@ -293,7 +293,7 @@ void OnroadHud::updateState(const UIState &s) {
   setProperty("maxSpeed", maxspeed_str);
   setProperty("speedUnit", s.scene.is_metric ? "km/h" : "mph");
   setProperty("hideDM", cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE);
-  setProperty("longControlEnable", sm["carParams"].getCarParams().getOpenpilotLongitudinalControl());
+  setProperty("longControlActive", sm["carParams"].getCarParams().getOpenpilotLongitudinalControl());
   setProperty("status", s.status);
 
   // update engageability and DM icons at 2Hz
@@ -333,13 +333,13 @@ void OnroadHud::paintEvent(QPaintEvent *event) {
   // display text info
   std::string info = "";
   std::string info1 = "LongCrtlActive: ";
-  std::string info2 = longControlEnable ? "true" : "false";
+  std::string info2 = longControlActive ? "true" : "false";
   info.append(info1);
   info.append(info2);
   QString infoText = QString::fromStdString(info);
   setProperty("finalInfoText", infoText);
   configFont(p, "Open Sans", 20, "Regular");
-  drawText(p, rect().left().x(), rect().center().y(), finalInfoText, 200);
+  drawText(p, rect().left().x(), 212, finalInfoText);
 
   // current speed
   configFont(p, "Open Sans", 176, "Bold");
