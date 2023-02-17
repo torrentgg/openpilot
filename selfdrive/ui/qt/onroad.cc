@@ -293,6 +293,8 @@ void OnroadHud::updateState(const UIState &s) {
   setProperty("maxSpeed", maxspeed_str);
   setProperty("speedUnit", s.scene.is_metric ? "km/h" : "mph");
   setProperty("hideDM", cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE);
+  setProperty("longControlActive", sm["carParams"].getCarParams().getOpenpilotLongitudinalControl());
+  setProperty("SDSU_Found", sm["carParams"].getCarParams().getSmartDsu());
   setProperty("status", s.status);
 
   // update engageability and DM icons at 2Hz
@@ -328,6 +330,27 @@ void OnroadHud::paintEvent(QPaintEvent *event) {
     configFont(p, "Open Sans", 80, "SemiBold");
     drawText(p, rc.center().x(), 212, maxSpeed, 100);
   }
+
+  // display text info
+  QRect ra(0, height() - 60, width(), 60);
+  p.setPen(QPen(QColor(0, 0, 0, 100), 100));
+  p.setBrush(QColor(0, 0, 0, 100));
+  p.drawRect(ra);
+  p.setPen(Qt::NoPen);
+
+  std::string info = "";
+  std::string info1 = "LongCrtlActive: ";
+  std::string info2 = longControlActive ? "true" : "false";
+  std::string info3 = "; SDSU_Found: ";
+  std::string info4 = SDSU_Found ? "true" : "false";
+  info.append(info1);
+  info.append(info2);
+  info.append(info3);
+  info.append(info4);
+  QString infoText = QString::fromStdString(info);
+  setProperty("finalInfoText", infoText);
+  configFont(p, "Open Sans", 55, "Regular");
+  drawText(p, rect().center().x(), rect().bottom()-5, finalInfoText);
 
   // current speed
   configFont(p, "Open Sans", 176, "Bold");
