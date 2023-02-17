@@ -46,6 +46,7 @@ class OnroadHud : public QWidget {
   Q_PROPERTY(bool dmActive MEMBER dmActive NOTIFY valueChanged);
   Q_PROPERTY(bool hideDM MEMBER hideDM NOTIFY valueChanged);
   Q_PROPERTY(bool longControlActive MEMBER longControlActive NOTIFY valueChanged);
+  Q_PROPERTY(bool SDSU_Found MEMBER SDSU_Found NOTIFY valueChanged);
   Q_PROPERTY(int status MEMBER status NOTIFY valueChanged);
 
 public:
@@ -70,6 +71,7 @@ private:
   bool dmActive = false;
   bool hideDM = false;
   bool longControlActive = false; //display line
+  bool SDSU_Found = false; //display line
   int status = STATUS_DISENGAGED;
 
 signals:
