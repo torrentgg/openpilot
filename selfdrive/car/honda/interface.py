@@ -287,6 +287,11 @@ class CarInterface(CarInterfaceBase):
     # conflict with PCM acc
     ret.minEnableSpeed = -1. if (stop_and_go or ret.enableGasInterceptor) else 25.5 * CV.MPH_TO_MS
 
+    # fix brake grinding issue
+    if ret.enableGasInterceptor:
+      ret.vEgoStopping = 0.15
+      ret.stoppingDecelRate = 0.3
+
     # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase
     ret.rotationalInertia = scale_rot_inertia(ret.mass, ret.wheelbase)
