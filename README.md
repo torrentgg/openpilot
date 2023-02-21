@@ -1,18 +1,21 @@
 🚨 Read before installing! 🚨   
 ------   
 The branch you are currently looking at is made for Honda/Acura. It will not work on other cars at it's current state, so please check the list for other branches or [Shane](https://github.com/sshane/openpilot) for Toyota/Lexus vehicles.   
+
+There are now **toggles** within the UI settings specific to this branch! Be sure to check them out for the optimal experience.
    
 🚨 Comma Pedal Users: 🚨  
 ------   
-This is the correct branch to use if you have a pedal installed in your Honda/Acura. Not using a pedal while running this branch will result in a cruise fault on startup. 
+The currently selected branch will work with the pedal but not the way it was intended. Please select the pedal version of this branch from the list.  
   
 [![](https://i.imgur.com/jrobDpP.jpg)](#)
 
 🚗 Installation  
 ------
-* Install via URL: https://smiskol.com/fork/aragon7777/0.8.10-model-0.8.9-honda-pedal  (NOTE: On the C3, simply use smiskol.com/fork with no https://)   
-* Install via SSH on Comma Two: `cd /data; cp -rf ./openpilot ./openpilot.bak; rm -rf ./openpilot; git clone -b 0.8.10-model-0.8.9-honda-pedal --single-branch https://github.com/Aragon7777/openpilot.git && reboot`   
-* Install via SSH on Comma Three: `cd /data; cp -rf ./openpilot ./openpilot.bak; rm -rf ./openpilot; git clone -b 0.8.10-model-0.8.9-honda-pedal --single-branch https://github.com/Aragon7777/openpilot.git && sudo reboot`  
+* Install via URL on the C2: `https://smiskol.com/fork/aragon7777/0.8.10-model-0.8.9-release-honda`    
+* Install via URL on the C3: `smiskol.com/fork/aragon7777/0.8.10-model-0.8.9-release-honda`    
+* Install via SSH on Comma Two: `cd /data; cp -rf ./openpilot ./openpilot.bak; rm -rf ./openpilot; git clone -b 0.8.10-model-0.8.9-release-honda --single-branch https://github.com/Aragon7777/openpilot.git && reboot`   
+* Install via SSH on Comma Three: `cd /data; cp -rf ./openpilot ./openpilot.bak; rm -rf ./openpilot; git clone -b 0.8.10-model-0.8.9-release-honda --single-branch https://github.com/Aragon7777/openpilot.git && sudo reboot`  
 * If a NEOS upgrade or downgrade is required, it's always best to factory reset and install stock Openpilot for that specific NEOS version. After that, proceed.   
 
 🚗 Other Branch Definitions
