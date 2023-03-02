@@ -12,7 +12,7 @@ sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     curl \
     ffmpeg \
     git \
-    libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libavresample-dev libavfilter-dev \
+    libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev \
     libarchive-dev \
     libbz2-dev \
     libcurl4-openssl-dev \
@@ -39,10 +39,10 @@ sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     ocl-icd-libopencl1 \
     ocl-icd-opencl-dev \
     opencl-headers \
-    python-dev \
+    python-is-python3 \
     python3-pip \
     qml-module-qtquick2 \
-    qt5-default \
+    qtbase5-dev qt5-qmake \
     qtmultimedia5-dev \
     qtwebengine5-dev \
     qtlocation5-dev \
