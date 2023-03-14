@@ -635,11 +635,12 @@ static void bb_ui_draw_UI(UIState *s)
 
 static void pdl_debug_info(UIState *s) {
   bool pdl_detected = (*s->sm)["carParams"].getCarParams().getEnableGasInterceptor();
-  const std::string pdl_detected_str = pdl_detected? "True":"False";
-  const std::string fp_car_model = (*s->sm)["carParams"].getCarParams().getCarFingerprint();
+  std::string pdl_detected_str = pdl_detected? "True":"False";
+  std::string fp_car_model = (*s->sm)["carParams"].getCarParams().getCarFingerprint();
+  const std::string final_text = "Pdl on: " + pdl_detected_str + " Car fw: " + fp_car_model;
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   // ui_draw_text(const UIState *s, float x, float y, const char *string, float size, NVGcolor color, const char *font_name)
-  ui_draw_text(s, s->fb_w/2, 420, "Pdl on: " + pdl_detected_str + " Car fw: " + fp_car_model, 36 * 2.5, COLOR_WHITE_ALPHA(200), "sans-regular");
+  ui_draw_text(s, s->fb_w/2, 420, final_text.c_str() , 36 * 2.5, COLOR_WHITE_ALPHA(200), "sans-regular");
 }
 
 //PDL DEBUG END: function added for display of pedal debug info 
