@@ -639,8 +639,8 @@ static void pdl_debug_info(UIState *s) {
   std::string fp_car_model = (*s->sm)["carParams"].getCarParams().getCarFingerprint();
   const std::string final_text = "Pdl on: " + pdl_detected_str + " Car fw: " + fp_car_model;
   float text_size = 36 * 2.5;
-  float x_pos = (int) s->fb_w/2;
-  float y_pos = (int) s->fb_h/2;
+  int x_pos = (int) s->fb_w/2;
+  int y_pos = (int) s->fb_h/2;
   // ui_draw_rect(NVGcontext *vg, const Rect &r, NVGcolor color, int width, float radius)
   const Rect rect = {0, y_pos - text_size, s->fb_w, text_size};
   ui_fill_rect(s->vg, rect, COLOR_BLACK_ALPHA(100), 30.);
