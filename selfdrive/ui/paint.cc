@@ -646,7 +646,7 @@ static void pdl_debug_info(UIState *s) {
   ui_fill_rect(s->vg, rect, COLOR_BLACK_ALPHA(100), 0.);
   //ui_draw_rect(s->vg, rect, COLOR_BLACK_ALPHA(100), 10, 5.);
   // ui_draw_text(const UIState *s, float x, float y, const char *string, float size, NVGcolor color, const char *font_name)
-  ui_draw_text(s, x_pos, y_pos, final_text.c_str() , text_size, COLOR_WHITE_ALPHA(200), "sans-regular");
+  ui_draw_text(s, x_pos, y_pos - 5, final_text.c_str() , text_size, COLOR_WHITE_ALPHA(200), "sans-regular");
 }
 
 //PDL DEBUG END: function added for display of pedal debug info 
